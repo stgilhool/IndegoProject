@@ -9,21 +9,25 @@ import pdb
 import code
 
 
+
+#Path and filename for data
 filename = "indego-trips-2017-q3.csv"
-file_dir = "C:\\Users\\gilhool\\.atom\\storage\\Fuckit"
+#file_dir = "D:\\Users\\gilhool\\.atom\\storage\\Fuckit"
 
-os.chdir(file_dir)
-print(os.getcwd())
-print(filename)
-print(os.listdir(file_dir))
+#Navigate to data file
+#os.chdir(file_dir)
 
+#Initialize arrays
 duration = []
 trip_id = []
 start_station = []
 end_station = []
 
+#Open CSV file
 with open(filename) as testCSV:
     test1 = csv.reader(testCSV)
+
+    #Loop through and read in data
     ii = 0
     for row in test1:
         if ii > 0:
@@ -33,30 +37,37 @@ with open(filename) as testCSV:
             end_station.append(row[7])
         ii = ii + 1
 
-dd = np.array(duration)
-d = dd.astype(int)
+# Convert lists into np arrays, and then to int type
+durarr = np.array(duration)
+d = durarr.astype(int)
 
-ss = np.array(start_station)
-s = ss.astype(int)
+start_arr = np.array(start_station)
+s = start_arr.astype(int)
 
-ee = np.array(end_station)
-e = ee.astype(int)
+end_arr = np.array(end_station)
+e = end_arr.astype(int)
 
 # vector of route identifiers (string concat of start+end)
 #route_id = np.transpose(np.transpose(ss)+np.transpose(ee))
-route_id = [ss[i]+ee[i] for i in range(len(ss))]
+route_id = [start_arr[i]+end_arr[i] for i in range(len(start_arr))]
 
+# Set of uniq identifiers
 route_id_set = set(route_id)
 
-for route in route_id_set:
-    print("steve is on route: {0}".format(route))
+#for i in enumerate(route_id_set):
+#    print(i)
 
+#for i in route_id_set:
+#    print(i)
 
+# Route ID lookup table
+route_table = []
+for index, route in enumerate(route_id_set):
+    route_table.append((index, route))
+    if index == 5:
+        print(route_table)
 
-#print(route_id[0:5])
-code.interact(local=locals())
-
-
+#code.interact(local=locals())
 
 tripidx = 6
 sample_start = s[tripidx]
