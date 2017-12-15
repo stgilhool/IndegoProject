@@ -8,8 +8,6 @@ import os.path
 import pdb
 import code
 
-
-
 #Path and filename for data
 filename = "indego-trips-2017-q3.csv"
 #file_dir = "D:\\Users\\gilhool\\.atom\\storage\\Fuckit"
@@ -24,18 +22,17 @@ start_station = []
 end_station = []
 
 #Open CSV file
-with open(filename) as testCSV:
-    test1 = csv.reader(testCSV)
-
+trip_table = []
+with open(filename, newline='') as testCSV:
+    reader = csv.DictReader(testCSV)
     #Loop through and read in data
-    ii = 0
-    for row in test1:
-        if ii > 0:
-            duration.append(row[1])
-            trip_id.append(row[0])
-            start_station.append(row[4])
-            end_station.append(row[7])
-        ii = ii + 1
+    for row in reader:
+        trip_table.append(row)
+
+col_names_view = trip_table[0].keys()
+col_names = []
+for key in col_names_view:
+    col_names.append(key)
 
 # Convert lists into np arrays, and then to int type
 durarr = np.array(duration)
