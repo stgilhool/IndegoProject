@@ -2,6 +2,7 @@ import googlemaps
 import datetime
 import simplejson
 import numpy as np
+import code
 
 gmaps = googlemaps.Client(key='AIzaSyA-Lvz3fLHg0Uk1V3L3p2mE4mkTIoozSEo')
 
@@ -57,7 +58,7 @@ print(duration_est)
 print(type(duration_est[0]))
 
 
-
+code.interact(local=locals())
 
 
 #print(type(dist_result))

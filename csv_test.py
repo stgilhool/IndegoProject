@@ -12,10 +12,10 @@ import code
 
 #Path and filename for data
 filename = "indego-trips-2017-q3.csv"
-#file_dir = "D:\\Users\\gilhool\\.atom\\storage\\Fuckit"
+file_dir = "C:\\Users\Eric\\Desktop\\job_search\\data_science\\project\\data"
 
 #Navigate to data file
-#os.chdir(file_dir)
+os.chdir(file_dir)
 
 #Initialize arrays
 duration = []
@@ -94,4 +94,4 @@ durs = d[match_idx]
 plt.hist(durs)
 plt.show()
 
-#code.interact(local=locals())
+code.interact(local=locals())
