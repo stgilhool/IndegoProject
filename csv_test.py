@@ -29,14 +29,26 @@ with open(filename, newline='') as testCSV:
     for row in reader:
         trip_table.append(row)
 
+#Loop through and assign dictionary keys to col_names
 col_names_view = trip_table[0].keys()
 col_names = []
 for key in col_names_view:
     col_names.append(key)
 
+
+
+#Loop through trip_table and get start_station, end_station and duration
+duration = []
+start_station = []
+end_station = []
+for row in trip_table:
+    duration.append(row['duration'])
+    start_station.append(row['start_station'])
+    end_station.append(row['end_station'])
+
 # Convert lists into np arrays, and then to int type
-durarr = np.array(duration)
-d = durarr.astype(int)
+dur_arr = np.array(duration)
+d = dur_arr.astype(int)
 
 start_arr = np.array(start_station)
 s = start_arr.astype(int)
@@ -46,47 +58,48 @@ e = end_arr.astype(int)
 
 # vector of route identifiers (string concat of start+end)
 #route_id = np.transpose(np.transpose(ss)+np.transpose(ee))
-route_id = [start_arr[i]+end_arr[i] for i in range(len(start_arr))]
+route_id_arr = [start_arr[i]+end_arr[i] for i in range(len(start_arr))]
 
 # Set of uniq identifiers
-route_id_set = set(route_id)
+route_id_set = set(route_id_arr)
 
-#for i in enumerate(route_id_set):
-#    print(i)
-
-#for i in route_id_set:
-#    print(i)
-
-# Route ID lookup table
+# Make Route ID lookup table by affixing indices to IDs (out: 2 x N_routes)
 route_table = []
 for index, route in enumerate(route_id_set):
     route_table.append((index, route))
-    if index == 5:
-        print(route_table)
+    #if index == 5:
+    #    print(route_table)
 
 #code.interact(local=locals())
 
-tripidx = 6
-sample_start = s[tripidx]
-sample_end = e[tripidx]
+### Function that takes route_id and finds all row indices that match
+route_id_index = 6
+# IDEA: allow either lookup table index, or route_id string as input
+# For now, take hardcoded route_id_input as index to route_table to get full id
+route_id_full = route_table[route_id_index][1]
 
-start_check = (s == sample_start)
-end_check = (e == sample_end)
+# Make a boolean vector of matching/non-matching extries
+route_id_np = np.array(route_id_arr)
+route_id_test = route_id_np.astype(int)
 
-match_idx = []
-
-#entryidx = 0
-#for entry in starti:
-#    if entry and endi[entryidx]:
-#        matchi.append(entryidx)
-#    entryidx = entryidx + 1
+route_id_full_test = int(route_id_full)
 
 
-for i in range(len(start_check)):
-    if start_check[i] and end_check[i]:
-        match_idx.append(i)
+#route_id_match_arr = (route_id_arr == route_id_full)
+route_id_match_arr = (route_id_test == route_id_full_test)
 
-durs = d[match_idx]
+print(type(route_id_match_arr))
+#print(route_id_match_arr[0:10])
+
+code.interact(local=locals())
+
+
+# Vector of indices
+row_index = route_id_match_arr.find('True')
+
+
+
+durs = d[row_index]
 
 plt.hist(durs)
 plt.show()
