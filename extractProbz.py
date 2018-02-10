@@ -130,4 +130,4 @@ jj = np.nonzero(routeFreq)[0]
 routeIDfreq = zip(jj,routeFreq[jj])
 
 
-'numpy.ndarray' object has no attribute 'astpye
+code.interact(local=locals())
