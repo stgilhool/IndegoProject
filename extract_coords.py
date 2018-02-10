@@ -53,7 +53,7 @@ e = end_arr.astype(int)
 #route_id = np.transpose(np.transpose(ss)+np.transpose(ee))
 route_id = [start_arr[i]+end_arr[i] for i in range(len(start_arr))]
 
-# Set of uniq identifiers
+# Set of unique identifiers
 route_id_set = set(route_id)
 
 #for i in enumerate(route_id_set):
@@ -83,8 +83,6 @@ for i in range(len(routeChk)):
         rtChkLst.append(str(routeChk[i]))
 
 digitCmbo = set(digitChk)
-
-
 
 print(digitCmbo)
 

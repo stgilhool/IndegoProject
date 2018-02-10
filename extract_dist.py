@@ -143,11 +143,11 @@ endStation_setInt = list(map(int, endStation_set))
 startIdx = []
 endIdx = []
 
-#startLat = []
-#startLon = []
+startLat = []
+startLon = []
 
-#endLat = []
-#endLon = []
+endLat = []
+endLon = []
 
 #grab indices of first instance of each start and end station in master list
 for Sstation in startStation_setInt:
@@ -156,23 +156,23 @@ for Estation in endStation_setInt:
     endIdx.append(next((i for i,v in enumerate(end_stationInt) if v == Estation), None))
 
 #grab unique (x,y) coords from master start/end (x,y) lists
-#for idx in startIdx:
-#    startLat.append(next((sLat for i,sLat in start_latInt if i == idx), None))
-#    startLon.append(next((sLon for i,sLon in start_lonInt if i == idx), None))
-#for idx in endIdx:
-#    endLat.append(next((eLat for i,eLat in end_latInt if i == idx), None))
-#    endLon.append(next((eLon for i,eLon in end_lonInt if i == idx), None))
+for idx in startIdx:
+    startLat.append(next((sLat for i,sLat in enumerate(start_latFloat) if i == idx), None))
+    startLon.append(next((sLon for i,sLon in enumerate(start_lonFloat) if i == idx), None))
+for idx in endIdx:
+    endLat.append(next((eLat for i,eLat in enumerate(end_latFloat) if i == idx), None))
+    endLon.append(next((eLon for i,eLon in enumerate(end_lonFloat) if i == idx), None))
 
 #master list of unique route parameters for input into google API
-#apiInput = []
-#apiInput[0] = list(map(int, route_id_set)) #route hash
-#apiInput[1] = list(map(int, startStation2)) #start stations
-#apiInput[3] = list(map(int, endStation2)) #end stations
+apiInput = []
+apiInput.append(list(map(float, route_id_set))) #route hash
+apiInput.append(list(map(float, startStation2[0]))) #start stations
+apiInput.append(list(map(float, endStation2[0]))) #end stations
 
-#apiInput[4] =  list(map(int, startLat))
-#apiInput[5] =  list(map(int, startLon))
-#apiInput[6] =  list(map(int, endLat))
-#apiInput[7] =  list(map(int, endLon))
+apiInput.append(list(map(float, startLat))) #start latitude
+apiInput.append(list(map(float, startLon))) #start longitude
+apiInput.append(list(map(float, endLat))) #end latitude
+apiInput.append(list(map(float, endLon))) #end longitude
 
 
 code.interact(local=locals())
