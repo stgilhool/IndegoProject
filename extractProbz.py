@@ -11,6 +11,7 @@ import os
 import os.path
 import pdb
 import code
+import networkx as nx
 
 filename = "indego-trips-2017-q3.csv"
 file_dir = "C:\\Users\Eric\\Desktop\\job_search\\data_science\\project\\data"
@@ -126,8 +127,14 @@ routeFreq = np.bincount(routeID)
 #find non-zero elements
 jj = np.nonzero(routeFreq)[0]
 
-#use the zip command to create the enumerated array
-routeIDfreq = zip(jj,routeFreq[jj])
+#use the zip command to create an array with unique route ID and frequency
+# of occurence in the master table
+routeIDfreqList = list(zip(jj,routeFreq[jj]))
+
+routeIDfreq = np.array(routeIDfreqList)
+routeIDreq = routeIDfreq.astype(int)
+
+
 
 
 code.interact(local=locals())
