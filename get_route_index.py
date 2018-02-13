@@ -73,34 +73,27 @@ for index, route in enumerate(route_id_set):
 #code.interact(local=locals())
 
 ### Function that takes route_id and finds all row indices that match
-def get_route_index(route_id_index, route_table)
-# IDEA: allow either lookup table index, or route_id string as input
-# For now, take hardcoded route_id_index as index to route_table to get full id
-route_id_full = route_table[route_id_index][1]
+def get_route_index(route_id, route_data=route_data)
 
-# Make a boolean vector of matching/non-matching extries
-route_id_np = np.array(route_id_arr)
-route_id_test = route_id_np.astype(int)
+    # Make a boolean vector of matching/non-matching extries
+    route_id_np = np.array(route_data)
+    route_id_test = route_id_np.astype(int)
 
-route_id_full_test = int(route_id_full)
+    route_id_full_test = int(route_id_full)
 
 
-#route_id_match_arr = (route_id_arr == route_id_full)
-route_id_match_arr = (route_id_test == route_id_full_test)
+    #route_id_match_arr = (route_id_arr == route_id_full)
+    route_id_match_arr = (route_id_test == route_id_full_test)
 
-print(type(route_id_test))
-print(type(route_id_full_test))
-print(type(route_id_match_arr))
-print(route_id_match_arr[0:10])
+    #print(type(route_id_test))
+    #print(type(route_id_full_test))
+    #print(type(route_id_match_arr))
+    #print(route_id_match_arr[0:10])
 
+    # Vector of indices
+    row_index = np.where(route_id_match_arr)
 
-
-# Vector of indices
-row_index = np.where(route_id_match_arr)
-
-print(row_index)
-
-code.interact(local=locals())
+    return row_index
 
 
 durs = d[row_index]
