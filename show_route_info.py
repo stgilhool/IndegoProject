@@ -10,16 +10,16 @@ import code
 
 ### Function that takes route_id and finds all row indices that match
 def get_route_index(route_id, route_data):
-    
+
     # Make a boolean vector of matching/non-matching extries
     route_id_np = np.array(route_data)
-    route_id_test = route_id_np.astype(int)
+    route_id_list = route_id_np.astype(int)
 
-    route_id_full_test = int(route_id_full)
+    route_id_in = int(route_id)
 
 
     #route_id_match_arr = (route_id_arr == route_id_full)
-    route_id_match_arr = (route_id_test == route_id_full_test)
+    route_id_match_arr = (route_id_list == route_id_in)
 
     #print(type(route_id_test))
     #print(type(route_id_full_test))
@@ -32,7 +32,7 @@ def get_route_index(route_id, route_data):
     return row_index
 
 def main(*route_id_input):
-    
+
     pass
 
     if len(route_id_input) == 0:
@@ -44,7 +44,7 @@ def main(*route_id_input):
     #Path and filename for data
     filename = "indego-trips-2017-q3.csv"
     #file_dir = "D:\\Users\\gilhool\\.atom\\storage\\Fuckit"
-    
+
     #Navigate to data file
     #os.chdir(file_dir)
 
@@ -105,7 +105,8 @@ def main(*route_id_input):
 
     #code.interact(local=locals())
     if show_routes:
-        print(index, route in enumerate(route_id_set))
+        for index, route in enumerate(route_id_set):
+            print(index, route)
         return
     else:
         row_index = get_route_index(route_id_input, route_data=route_id_arr)
@@ -119,4 +120,4 @@ def main(*route_id_input):
         return
 
 if __name__ == '__main__':
-    main()
+    main(30743022)
