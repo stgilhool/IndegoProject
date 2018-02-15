@@ -105,22 +105,41 @@ for idx, lon in enumerate(end_lon):
 #end_lonInt = list(map(float, end_lon))
 
 # Convert lists into np arrays, and then to int type
-durarr = np.array(duration)
-d = durarr.astype(int)
+# find the number of unique entries in this array
 
-start_arr = np.array(start_station)
-s = start_arr.astype(int)
+# durarr = np.array(duration)
+# d = durarr.astype(int)
 
-end_arr = np.array(end_station)
-e = end_arr.astype(int)
+startStat = np.array(start_station)
+startStat = startStat.astype(int)
+
+endStat = np.array(end_station)
+endStat = endStat.astype(int)
+
+startStatUn = np.unique(startStat)
+endStatUn = np.unique(endStat)
 
 # vector of route identifiers (string concat of start + end)
-route_id = [start_arr[i]+end_arr[i] for i in range(len(start_arr))]
+routeIDtot = [startStat[i]+endStat[i] for i in range(len(startStat))]
 
 #turn this vector into a numpy array and then into an integer array
-routeID = np.array(route_id)
+routeID = np.array(routeIDtot)
 # print(type(routeID))
 routeID = routeID.astype(int)
+
+# now start writing the new script to extract the ID
+startStation2 = []
+endStation2 = []
+
+startStation2.append([rIdx[0:4] for rIdx in route_id_set])
+endStation2.append([rIdx[4:9] for rIdx in route_id_set])
+
+startStation_set = list(set(start_station))
+endStation_set = list(set(end_station))
+
+startStation_setInt = list(map(int, startStation_set))
+endStation_setInt = list(map(int, endStation_set))
+
 
 # try the bincount command to return an array of frequencies
 routeFreq = np.bincount(routeID)
