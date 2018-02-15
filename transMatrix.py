@@ -67,22 +67,17 @@ routeID = routeID.astype(int)
 
 primeQ = np.zeros([len(startStatUn), len(startStatUn)])
 
-iter = 0
-for rowIdx, startStation in enumerate(startStatUn):
-    for colIdx, endStation in enumerate(startStatUn):
-        #construct the id
-        routeIDiter = str(startStation)+str(endStation)
-        routeIDiterInt = int(routeIDiter)
-        # get route indices for give 8-digit route number
-        routeIndices = get_route_index(routeIDiterInt, route_data=routeIDtot)
-        # Number of trips for given routeID
-        ntripsRoute = len(routeIndices)
+for rowIdx in range(len(startStat)):
+    # Get Q row index
+    startStatRow = startStatInt[rowIdx]
+    rowIdxQ = np.where(startStatUn == startStatRow)
 
-        # Store it in the big, unnormalized Q
-        primeQ[rowIdx, colIdx] = ntripsRoute
+    endStatRow = endStatInt[rowIdx]
+    colIdxQ = np.where(startStatUn == endStatRow)
 
-        print(iter)
-        iter = iter + 1
+    primeQ[rowIdxQ, colIdxQ] = primeQ[rowIdxQ, colIdxQ] + 1
+
+matrixQ = primeQ/(primeQ.sum(axis=1, keepdims=True))
 
 print(type(primeQ))
 print(len(primeQ))
