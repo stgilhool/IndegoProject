@@ -51,9 +51,15 @@ startStatInt = startStat.astype(int)
 endStat = np.array(end_station)
 endStatInt = endStat.astype(int)
 
+# Get vector of unique station ID's
 startStatUn = np.unique(startStatInt)
 endStatUn = np.unique(endStatInt)
-#FIXME: make sure that startStatUn and endStatUn contain all the same stations
+
+# Make sure that startStatUn and endStatUn contain all the same stations
+stationCheck = np.array_equal(startStatUn, endStatUn)
+if not stationCheck:
+    sys.exit("ERROR: start and end station vectors contain different stations")
+    
 
 # vector of route identifiers (string concat of start + end)
 routeIDtot = [startStat[i]+endStat[i] for i in range(len(startStat))]
