@@ -91,8 +91,9 @@ print(primeQ.sum(axis=0))
 print(type(primeQ))
 print(len(primeQ))
 
-bikevec = np.zeros(len(startStatUn))
-bikevec[1] = 1.0
+#bikevec = np.zeros(len(startStatUn))
+bikevec = np.ones(len(startStatUn))
+#bikevec[1] = 1.0
 
 trip = np.matmul(bikevec, matrixQ)
 print(trip)
@@ -104,23 +105,29 @@ fig = plt.figure(figsize=(12,9))
 plt.ion()
 plt.show()
 
-for tripnum in range(1,50):
+for tripnum in range(0,20):
+        
+    if tripnum > 0:
+        result = np.matmul(bikevec, matrixQ)
+        bikevec = result
 
-    
-    result = np.matmul(bikevec, matrixQ)
-    
+    elif tripnum == 0:
+        result = bikevec
+        
     trip = fig.add_subplot(111)
     titleString = 'Trip '+str(tripnum)
     trip.set_title(titleString)
     trip.set_autoscaley_on(False)
-    trip.set_ylim([0,.1])
+    trip.set_ylim([0,5])
     trip.plot(result, linestyle='None', marker='.')
-
-    bikevec = result
-
+    
     plt.draw()
-    plt.pause(1)
-    #time.sleep(1)
+    
+    if tripnum == 0:
+        plt.pause(3)
+    else:
+        plt.pause(1)
+    
     fig.clf()
 
 
