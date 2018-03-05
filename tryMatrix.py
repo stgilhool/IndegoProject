@@ -9,6 +9,7 @@ import os
 import os.path
 import pdb
 import code
+import time
 import networkx as nx
 from show_route_info import get_route_index
 
@@ -91,7 +92,7 @@ print(type(primeQ))
 print(len(primeQ))
 
 bikevec = np.zeros(len(startStatUn))
-bikevec[0] = 1.0
+bikevec[1] = 1.0
 
 trip = np.matmul(bikevec, matrixQ)
 print(trip)
@@ -99,6 +100,30 @@ print(trip)
 trip2 = np.matmul(trip, matrixQ)
 print(trip2)
 
+fig = plt.figure(figsize=(12,9))
+plt.ion()
+plt.show()
+
+for tripnum in range(1,50):
+
+    
+    result = np.matmul(bikevec, matrixQ)
+    
+    trip = fig.add_subplot(111)
+    titleString = 'Trip '+str(tripnum)
+    trip.set_title(titleString)
+    trip.set_autoscaley_on(False)
+    trip.set_ylim([0,.1])
+    trip.plot(result, linestyle='None', marker='.')
+
+    bikevec = result
+
+    plt.draw()
+    plt.pause(1)
+    #time.sleep(1)
+    fig.clf()
 
 
-code.interact(local=locals())
+    
+
+#code.interact(local=locals())
