@@ -52,8 +52,10 @@ endStat = endStat.astype(int)
 startStatUn = np.unique(startStat)
 endStatUn = np.unique(endStat)
 
+code.interact(local=locals())
+
 # vector of route identifiers (string concat of start + end)
-routeIDtot = [startStat[i]+endStat[i] for i in range(len(startStat))]
+routeIDtot = [str(startStat[i])+str(endStat[i]) for i in range(len(startStat))]
 
 #turn this vector into a numpy array and then into an integer array
 routeID = np.array(routeIDtot)
