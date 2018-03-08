@@ -1,5 +1,4 @@
 #script that makes transition matrix and propagates trips
-
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,6 +13,9 @@ import networkx as nx
 from show_route_info import get_route_index
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
+import pylab
+
+plt.rcParams['figure.figsize'] = (20.0, 20.0)
 
 filename = "indego-trips-2017-q3.csv"
 #file_dir = "C:\\Users\Eric\\Desktop\\job_search\\data_science\\project\\data"
@@ -91,6 +93,10 @@ matrixQ = primeQ/(primeQ.sum(axis=1, keepdims=True))
 tol = 0.01
 matrixQ[matrixQ < tol ] = 0
 
+# renormalize the Q matrix
+Qnorm = np.abs(matrixQ).sum(axis=1)
+matrixQ = matrixQ.astype(np.float) / Qnorm[:,None]
+
 # let's try to make a graph of the network using our adjacency/transition matrix
 
 
@@ -122,6 +128,7 @@ for weightVal in range(len(edgeW)):
 
 
 QedgeTot = list(zip(QedgeI,QedgeJ,weightList))
+
 QnodesTot = np.arange(0,124)
 
 G = nx.DiGraph()
@@ -134,76 +141,159 @@ pos = nx.spring_layout(G,k = 0.8, iterations = 100)
 edgeMin = min(edgeW)
 edgeMax = max(edgeW)
 
-redYlBu = cm = plt.get_cmap('RdYlBu')
+edgeHeat = edgeCm = plt.get_cmap('gist_heat')
 cNormEdge = colors.LogNorm(vmin = edgeMin, vmax = edgeMax)
-scalarMapEdge = cmx.ScalarMappable(norm = cNormEdge, cmap = redYlBu)
+scalarMapEdge = cmx.ScalarMappable(norm = cNormEdge, cmap = edgeHeat)
 edgeColSet = []
 for edge in range(len(edgeW)):
     edgeColVal = scalarMapEdge.to_rgba(edgeW[edge])
     edgeColSet.append(edgeColVal)
 
-# nodeColor =
+
 Gdeg = nx.degree(G)
-nodeSize = []
+degScale = []
 for deg in range(len(Gdeg)):
-    nodeSize.append(10*Gdeg[deg])
+    degScale.append(Gdeg[deg])
+
+
 nodeLabels = {node:node for node in QnodesTot}
 
-nx.draw(G,pos,edge_color = edgeColSet,node_size =nodeSize)
-nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+# nx.draw(G,pos,edge_color = edgeColSet,node_size = 1000, node_color=degScale,cmap = plt.cm.coolwarm)
+# nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+# nx.draw_networkx_edges(G,pos,alpha = 0.01)
 
-plt.show()
+# plt.show()
 
-code.interact(local=locals())
+######uniform initial distribution test#######
 
+# generate uniform probability vector
+uniProb = 1/len(QnodesTot)
+initDist = np.ones(124)*uniProb
 
-# print(primeQ.sum(axis=1))
-# print(primeQ.sum(axis=0))
-#print(type(primeQ))
-# print(len(primeQ))
+# set tolerance condition for breaking the loop
+loopTol = 1e-3
 
-#bikevec = np.zeros(len(startStatUn))
-bikevec = np.ones(len(startStatUn))
-#bikevec[1] = 1.0
+#initialize arrays and feed them the initial state
+simDist = []
+chiDist = []
+nodeSize = []
 
-trip = np.matmul(bikevec, matrixQ)
-# print(trip)
+simDist.append(initDist)
 
-code.interact(local=locals())
+nodeSize.append(1e5*initDist)
 
-trip2 = np.matmul(trip, matrixQ)
-# print(trip2)
+chiRes = np.zeros(124)
+chiDist.append(chiRes)
 
-fig = plt.figure(figsize=(12,9))
-plt.ion()
-plt.show()
+# propogate the bike density forward
+nSteps = 10
 
-for tripnum in range(0,20):
+for simIter in range(1,1+nSteps):
+    result = np.matmul(simDist[simIter-1], matrixQ)
+    simDist.append(result)
 
-    if tripnum > 0:
-        result = np.matmul(bikevec, matrixQ)
-        bikevec = result
+    nodeSize.append(1e5*simDist[simIter])
 
-    elif tripnum == 0:
-        result = bikevec
+    chiRes = abs(simDist[simIter] - simDist[simIter-1])
+    chiDist.append(chiRes)
 
-    trip = fig.add_subplot(111)
-    titleString = 'Trip '+str(tripnum)
-    trip.set_title(titleString)
-    trip.set_autoscaley_on(False)
-    trip.set_ylim([0,5])
-    trip.plot(result, linestyle='None', marker='.')
+    print(max(chiDist[simIter]))
 
-    plt.draw()
+    if max(chiDist[simIter]) < loopTol:
+        break
 
-    if tripnum == 0:
-        plt.pause(3)
-    else:
+iterMax = simIter
+
+# code.interact(local=locals())
+
+# generate plots and save them
+graph = nx.Graph()
+nodeSizeIdx = 0
+pylab.ion()
+
+def make_bike_graph():
+    global nodeSize
+    global nodeSizeIdx
+    nodeSizeIdx += 1
+    nx.draw(G,pos,edge_color = edgeColSet,node_size = nodeSize[nodeSizeIdx], node_color=degScale,cmap = plt.cm.coolwarm)
+    nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+    nx.draw_networkx_edges(G,pos,alpha = 0.01)
+
+pylab.show()
+
+for simIter in range(iterMax):
+    if simIter == 0:
+        nx.draw(G,pos,edge_color = edgeColSet,node_size = nodeSize[0], node_color=degScale,cmap = plt.cm.coolwarm)
+        nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+        nx.draw_networkx_edges(G,pos,alpha = 0.01)
+
+        pylab.draw()
         plt.pause(1)
+        plt.savefig("uniform" + str(simIter) + ".png")
+        plt.clf()
 
-    fig.clf()
+    elif simIter > 0:
+        fig = make_bike_graph()
+        pylab.draw()
+        plt.pause(1)
+        plt.savefig("uniform" + str(simIter) + ".png")
+        plt.clf()
 
+# fig = plt.figure()
+# graphSet, = nx.DiGraph()
 
+# def init():
+#     graphSet, = nx.Digraph()
+#     return graphSet,
+#
+# #animation function. This is called sequentially
+# def animate(i):
+#     global nodeSize
+#     global nodeSizeIdx
+#     global pos
+#     global degScale
+#     nx.draw(G,pos,edge_color = edgeColSet,node_size = nodeSize[nodeSizeIdx], node_color=degScale,cmap = plt.cm.coolwarm)
+#     nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+#     nx.draw_networkx_edges(G,pos,alpha = 0.01)
 
+#
+#
+code.interact(local=locals())
 
-#code.interact(local=locals())
+# bikevec = np.ones(len(startStatUn))
+#
+# trip = np.matmul(bikevec, matrixQ)
+#
+# trip2 = np.matmul(trip, matrixQ)
+#
+# fig = plt.figure(figsize=(12,9))
+# plt.ion()
+# plt.show()
+#
+# for tripnum in range(0,20):
+#
+#     if tripnum > 0:
+#         result = np.matmul(bikevec, matrixQ)
+#         bikevec = result
+#
+#     elif tripnum == 0:
+#         result = bikevec
+#
+#     trip = fig.add_subplot(111)
+#     titleString = 'Trip '+str(tripnum)
+#     trip.set_title(titleString)
+#     trip.set_autoscaley_on(False)
+#     trip.set_ylim([0,5])
+#     trip.plot(result, linestyle='None', marker='.')
+#
+#     plt.draw()
+#
+#     if tripnum == 0:
+#         plt.pause(3)
+#     else:
+#         plt.pause(1)
+#
+#     fig.clf()
+#
+#
+# code.interact(local=locals())
