@@ -2,7 +2,6 @@
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 import sys
 import os
 import os.path
@@ -90,7 +89,7 @@ for rowIdx in range(len(startStat)):
 
 matrixQ = primeQ/(primeQ.sum(axis=1, keepdims=True))
 
-tol = 0.01
+tol = 0.022
 matrixQ[matrixQ < tol ] = 0
 
 # renormalize the Q matrix
@@ -158,51 +157,57 @@ for deg in range(len(Gdeg)):
 
 nodeLabels = {node:node for node in QnodesTot}
 
-# nx.draw(G,pos,edge_color = edgeColSet,node_size = 1000, node_color=degScale,cmap = plt.cm.coolwarm)
-# nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
-# nx.draw_networkx_edges(G,pos,alpha = 0.01)
+nx.draw(G,pos,edge_color = edgeColSet,node_size = 1000, node_color=degScale,cmap = plt.cm.coolwarm)
+nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+nx.draw_networkx_edges(G,pos,alpha = 0.01)
 
 # plt.show()
-
-######uniform initial distribution test#######
+plt.clf()
+#####################uniform initial distribution test##########################
 
 # generate uniform probability vector
 uniProb = 1/len(QnodesTot)
-initDist = np.ones(124)*uniProb
+uniDist = np.ones(124)*uniProb
 
 # set tolerance condition for breaking the loop
-loopTol = 1e-3
+loopTol = 8e-4
 
 #initialize arrays and feed them the initial state
 simDist = []
 chiDist = []
 nodeSize = []
 
-simDist.append(initDist)
+simDist.append(uniDist)
 
-nodeSize.append(1e5*initDist)
+nodeSize.append(1e5*uniDist)
 
 chiRes = np.zeros(124)
 chiDist.append(chiRes)
 
 # propogate the bike density forward
-nSteps = 10
+nSteps = 15
 
-for simIter in range(1,1+nSteps):
-    result = np.matmul(simDist[simIter-1], matrixQ)
+for simIterUni in range(1,1+nSteps):
+    result = np.matmul(simDist[simIterUni-1], matrixQ)
     simDist.append(result)
 
-    nodeSize.append(1e5*simDist[simIter])
+    nodeSize.append(1e5*simDist[simIterUni])
 
-    chiRes = abs(simDist[simIter] - simDist[simIter-1])
+    chiRes = abs(simDist[simIterUni] - simDist[simIterUni-1])
     chiDist.append(chiRes)
 
-    print(max(chiDist[simIter]))
+    # print(max(chiDist[simIterUni]))
 
-    if max(chiDist[simIter]) < loopTol:
+    if max(chiDist[simIterUni]) < loopTol:
         break
 
-iterMax = simIter
+iterMaxUni = simIterUni
+
+#store the max chi as a new variable so we can later compare it to other distributions
+uniChiDist = []
+for simIterUni in range(iterMaxUni):
+    uniChiDist.append(max(chiDist[simIterUni]))
+
 
 # code.interact(local=locals())
 
@@ -221,23 +226,218 @@ def make_bike_graph():
 
 pylab.show()
 
-for simIter in range(iterMax):
-    if simIter == 0:
+for simIterUni in range(iterMaxUni):
+    if simIterUni == 0:
         nx.draw(G,pos,edge_color = edgeColSet,node_size = nodeSize[0], node_color=degScale,cmap = plt.cm.coolwarm)
         nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
         nx.draw_networkx_edges(G,pos,alpha = 0.01)
 
         pylab.draw()
         plt.pause(1)
-        plt.savefig("uniform" + str(simIter) + ".png")
+        plt.savefig("uniform" + str(simIterUni) + ".png")
         plt.clf()
 
-    elif simIter > 0:
+    elif simIterUni > 0:
         fig = make_bike_graph()
         pylab.draw()
         plt.pause(1)
-        plt.savefig("uniform" + str(simIter) + ".png")
+        plt.savefig("uniform" + str(simIterUni) + ".png")
         plt.clf()
+
+
+#################random initial distribution test###############################
+
+#basically a copy and paste of code above, but this time with a random initial distribution
+
+# generate probability vector with random entries
+randDist = np.random.rand(124)
+
+# renormalize the random initial distribution
+randDistNorm = np.abs(randDist).sum(axis=0)
+randDist = randDist.astype(np.float) / randDistNorm
+
+#initialize arrays and feed them the initial state
+simDist = []
+chiDist = []
+nodeSize = []
+
+simDist.append(randDist)
+
+nodeSize.append(1e5*randDist)
+
+chiRes = np.zeros(124)
+chiDist.append(chiRes)
+
+# propogate the bike density forward
+nSteps = 15
+
+for simIterRand in range(1,1+nSteps):
+    result = np.matmul(simDist[simIterRand-1], matrixQ)
+    simDist.append(result)
+
+    nodeSize.append(1e5*simDist[simIterRand])
+
+    chiRes = abs(simDist[simIterRand] - simDist[simIterRand-1])
+    chiDist.append(chiRes)
+
+    # print(max(chiDist[simIterRand]))
+
+    if max(chiDist[simIterRand]) < loopTol:
+        break
+
+iterMaxRand = simIterRand
+
+#store the max chi as a new variable so we can later compare it to other distributions
+randChiDist = []
+for simIterRand in range(iterMaxRand):
+    randChiDist.append(max(chiDist[simIterRand]))
+
+
+# generate plots and save them
+graph = nx.Graph()
+nodeSizeIdx = 0
+pylab.ion()
+
+
+pylab.show()
+
+for simIterRand in range(iterMaxRand):
+    if simIterRand == 0:
+        nx.draw(G,pos,edge_color = edgeColSet,node_size = nodeSize[0], node_color=degScale,cmap = plt.cm.coolwarm)
+        nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+        nx.draw_networkx_edges(G,pos,alpha = 0.01)
+
+        pylab.draw()
+        plt.pause(1)
+        plt.savefig("rand_" + str(simIterRand) + ".png")
+        plt.clf()
+
+    elif simIterRand > 0:
+        fig = make_bike_graph()
+        pylab.draw()
+        plt.pause(1)
+        plt.savefig("rand_" + str(simIterRand) + ".png")
+        plt.clf()
+
+#################exponential initial distribution test###############################
+
+#you know the drill. try one more time with an exponentially distributed initial state.
+#we do this to see how a heavily skewed distribution will relax.
+
+# generate probability vector with skewed entries
+expBase = np.linspace(0,123,num=124)
+expDist = np.exp(expBase/114)
+
+# np.random.exponential(20,124)
+
+# renormalize the exponential distribution
+expDistNorm = np.abs(expDist).sum(axis=0)
+expDist = expDist.astype(np.float) / expDistNorm
+
+#initialize arrays and feed them the initial state
+simDist = []
+chiDist = []
+nodeSize = []
+
+simDist.append(expDist)
+
+nodeSize.append(1e5*expDist)
+
+chiRes = np.zeros(124)
+chiDist.append(chiRes)
+
+# propogate the bike density forward
+nSteps = 15
+
+for simIterExp in range(1,1+nSteps):
+    result = np.matmul(simDist[simIterExp-1], matrixQ)
+    simDist.append(result)
+
+    nodeSize.append(1e5*simDist[simIterExp])
+
+    chiRes = abs(simDist[simIterExp] - simDist[simIterExp-1])
+    chiDist.append(chiRes)
+
+    # print(max(chiDist[simIterExp]))
+
+    if max(chiDist[simIterExp]) < loopTol:
+        break
+
+iterMaxExp = simIterExp
+
+#store the max chi as a new variable so we can later compare it to other distributions
+expChiDist = []
+for simIterExp in range(iterMaxExp):
+    expChiDist.append(max(chiDist[simIterExp]))
+
+
+# generate plots and save them
+graph = nx.Graph()
+nodeSizeIdx = 0
+pylab.ion()
+
+
+pylab.show()
+
+for simIterExp in range(iterMaxExp):
+    if simIterExp == 0:
+        nx.draw(G,pos,edge_color = edgeColSet,node_size = nodeSize[0], node_color=degScale,cmap = plt.cm.coolwarm)
+        nx.draw_networkx_labels(G,pos,labels = nodeLabels, font_size = 12)
+        nx.draw_networkx_edges(G,pos,alpha = 0.01)
+
+        pylab.draw()
+        plt.pause(1)
+        plt.savefig("exp_" + str(simIterExp) + ".png")
+        plt.clf()
+
+    elif simIterExp > 0:
+        fig = make_bike_graph()
+        pylab.draw()
+        plt.pause(1)
+        plt.savefig("exp_" + str(simIterExp) + ".png")
+        plt.clf()
+
+# code.interact(local=locals())
+
+
+##########compare convergence times for different distributions########
+
+#generate x-values for each chi series
+uniX = np.linspace(0,iterMaxUni-1,iterMaxUni)
+randX = np.linspace(0,iterMaxRand-1,iterMaxRand)
+expX = np.linspace(0,iterMaxExp-1,iterMaxExp)
+
+chiXLim = max([iterMaxUni, iterMaxRand, iterMaxExp]) + 1
+
+
+# configure text size and tick size
+plt.rcParams.update({'font.size': 36})
+plt.rc('xtick', labelsize=30)
+plt.rc('ytick', labelsize=30)
+plt.rcParams['lines.markersize'] = 20
+
+# make plot
+plt.plot(uniX, uniChiDist, 'ro', label = 'Uniform')
+plt.plot(randX,randChiDist, 'bs', label = 'Random')
+plt.plot(expX, expChiDist,'g^', label = 'Exponential')
+
+# format plot
+plt.title(r'$\chi$ vs Iteration Number')
+plt.xlim([-1,chiXLim])
+plt.yscale('linear')
+plt.xlabel('Iteration Number, N')
+plt.ylabel(r'$\chi$')
+plt.legend()
+
+plt.savefig("chiDistAll.png")
+plt.show()
+
+
+code.interact(local=locals())
+
+
+
+
 
 # fig = plt.figure()
 # graphSet, = nx.DiGraph()
@@ -258,7 +458,7 @@ for simIter in range(iterMax):
 
 #
 #
-code.interact(local=locals())
+# code.interact(local=locals())
 
 # bikevec = np.ones(len(startStatUn))
 #
